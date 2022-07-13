@@ -1,10 +1,11 @@
 package com.axelrod.tacocloud.controllers;
 
 import com.axelrod.tacocloud.entity.Ingredient;
+import com.axelrod.tacocloud.entity.Ingredient.Type;
 import com.axelrod.tacocloud.entity.Order;
 import com.axelrod.tacocloud.entity.Taco;
-import com.axelrod.tacocloud.repository.jdbc.IngredientRepository;
-import com.axelrod.tacocloud.repository.jdbc.TacoRepository;
+import com.axelrod.tacocloud.repository.jpa.IngredientRepository;
+import com.axelrod.tacocloud.repository.jpa.TacoRepository;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,45 +16,63 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.axelrod.tacocloud.entity.Ingredient.Type;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Controller
 @RequestMapping("/design")
+@SessionAttributes("order")
 public class DesignTacoController {
 
     @Setter(onMethod = @__({@Autowired}))
     private IngredientRepository ingredientRepository;
+    @Setter(onMethod = @__({@Autowired}))
+    private TacoRepository tacoRepository;
 
     @ModelAttribute
     public void addIngredientsToModel(Model model) {
         Type[] types = Ingredient.Type.values();
         for (Type type : types) {
-            model.addAttribute(type.toString().toLowerCase(), filterByType(ingredientRepository.findAll(), type));
+            model.addAttribute(
+                    type.toString().toLowerCase(),
+                    filterByType(
+                            StreamSupport.stream(ingredientRepository.findAll().spliterator(), false).collect(Collectors.toList()),
+                            type
+                    )
+            );
         }
     }
 
+    @ModelAttribute(name = "order")
+    public Order order() {
+        return new Order();
+    }
+
+    @ModelAttribute(name = "taco")
+    public Taco design() {
+        return new Taco();
+    }
+
     @GetMapping
-    public String showDesignForm(Model model) {
-        model.addAttribute("taco", new Taco());
+    public String showDesignForm() {
         return "design";
     }
 
     @PostMapping
-    public String processDesign(@Valid @ModelAttribute Taco taco, Errors errors, Model model) {
+    public String processDesign(@Valid @ModelAttribute Taco taco, Errors errors, @ModelAttribute Order order) {
         if (errors.hasErrors()) {
-            model.addAttribute("taco", taco);
             log.info("Processing design: " + taco);
             return "design";
         }
 
         log.info("Processing design: " + taco);
+        Taco saved = tacoRepository.save(taco);
+        order.addDesign(saved);
 
         return "redirect:/orders/current";
     }

@@ -2,7 +2,7 @@ package com.axelrod.tacocloud.controllers;
 
 import com.axelrod.tacocloud.entity.Order;
 import com.axelrod.tacocloud.repository.jdbc.IngredientRepository;
-import com.axelrod.tacocloud.repository.jdbc.OrderRepository;
+import com.axelrod.tacocloud.repository.jpa.OrderRepository;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,7 @@ public class OrderController {
     private OrderRepository orderRepository;
 
     @GetMapping("/current")
-    public String orderForm(Model model) {
-        model.addAttribute("order", new Order());
+    public String orderForm() {
         return "orderForm";
     }
 
