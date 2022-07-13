@@ -26,13 +26,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Controller
 @RequestMapping("/design")
-@SessionAttributes("order")
 public class DesignTacoController {
 
     @Setter(onMethod = @__({@Autowired}))
     private IngredientRepository ingredientRepository;
-    @Setter(onMethod = @__({@Autowired}))
-    private TacoRepository tacoRepository;
 
     @ModelAttribute
     public void addIngredientsToModel(Model model) {
@@ -42,32 +39,21 @@ public class DesignTacoController {
         }
     }
 
-    @ModelAttribute(name = "order")
-    public Order order() {
-        return new Order();
-    }
-
-    @ModelAttribute(name = "taco")
-    public Taco taco() {
-        return new Taco();
-    }
-
     @GetMapping
     public String showDesignForm(Model model) {
+        model.addAttribute("taco", new Taco());
         return "design";
     }
 
     @PostMapping
-    public String processDesign(
-            @Valid @ModelAttribute Taco taco, Errors errors,
-            @ModelAttribute Order order,
-            Model model) {
+    public String processDesign(@Valid @ModelAttribute Taco taco, Errors errors, Model model) {
         if (errors.hasErrors()) {
+            model.addAttribute("taco", taco);
+            log.info("Processing design: " + taco);
             return "design";
         }
 
-        Taco saved = tacoRepository.save(taco);
-        order.addDesign(saved);
+        log.info("Processing design: " + taco);
 
         return "redirect:/orders/current";
     }
