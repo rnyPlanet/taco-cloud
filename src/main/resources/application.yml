@@ -1,0 +1,14 @@
+taco:
+  orders:
+    pageSize: 10
+  discount:
+    codes:
+      abcdef: 10
+
+spring:
+  jpa.show-sql: true
+  datasource:
+    url: jdbc:h2:mem:test_db
+    username: 1
+    password: 1
+    driver-class-name: org.h2.Driver

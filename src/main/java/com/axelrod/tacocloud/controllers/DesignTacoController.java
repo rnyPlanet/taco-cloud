@@ -50,12 +50,12 @@ public class DesignTacoController {
 
     @ModelAttribute(name = "order")
     public Order order() {
-        return new Order();
+        return Order.builder().build();
     }
 
     @ModelAttribute(name = "taco")
     public Taco design() {
-        return new Taco();
+        return Taco.builder().build();
     }
 
     @GetMapping

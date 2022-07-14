@@ -1,6 +1,11 @@
 package com.axelrod.tacocloud.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.CreditCardNumber;
 
 import javax.persistence.Entity;
@@ -20,6 +25,9 @@ import java.util.List;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name="Taco_Order")
 public class Order {
 
@@ -66,5 +74,17 @@ public class Order {
     @PrePersist
     void placedAt() {
         this.placedAt = new Date();
+    }
+
+    public Order(String name, String street, String city, String state, String zip, String ccNumber, String ccExpiration, String ccCVV, User user) {
+        this.name = name;
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zip = zip;
+        this.ccNumber = ccNumber;
+        this.ccExpiration = ccExpiration;
+        this.ccCVV = ccCVV;
+        this.user = user;
     }
 }
